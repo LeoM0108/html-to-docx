@@ -690,6 +690,16 @@ const modifiedStyleAttributesBuilder = (docxDocumentInstance, vNode, attributes,
     }
   }
 
+  // ***** START: CORRECTED CLASS CHECK *****
+  // Check for the class within vNode.properties.attributes
+  if (vNode.properties && vNode.properties.attributes && vNode.properties.attributes.class && vNode.properties.attributes.class.includes('paragraph-border-bottom')) {
+    // Set the paragraphBorder property if the class is found
+    // Added val: 'single' for completeness
+    modifiedAttributes.paragraphBorder = { bottom: { val: 'single', size: 8, spacing: 1, color: 'auto' } };
+    // Note: Adjusted values slightly to match previous examples (size 8=1pt, space 1pt, auto color) - change as needed
+  }
+  // ***** END: CORRECTED CLASS CHECK *****
+
   return modifiedAttributes;
 };
 
@@ -1254,6 +1264,29 @@ const buildParagraphProperties = (attributes) => {
     delete attributes.afterSpacing;
 
     paragraphPropertiesFragment.import(spacingFragment);
+
+    // ***** START: CORRECTED CONDITIONAL BORDER CODE *****
+    // Check if the paragraphBorder attribute was set (likely by modifiedStyleAttributesBuilder based on class/style)
+    if (attributes.paragraphBorder && attributes.paragraphBorder.bottom) {
+      const borderDetails = attributes.paragraphBorder.bottom;
+
+      // Create the Paragraph Borders (<w:pBdr>) element
+      const pBdrFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'pBdr');
+
+      // Define the Bottom Border (<w:bottom>) using details from attributes
+      pBdrFragment.ele('@w', 'bottom')
+        .att('@w', 'val', borderDetails.val || 'single') // Use value from attributes or default
+        .att('@w', 'sz', borderDetails.sz || '4')         // Use value from attributes or default
+        .att('@w', 'space', borderDetails.space || '1')    // Use value from attributes or default
+        .att('@w', 'color', borderDetails.color || 'auto') // Use value from attributes or default
+        .up(); // Go back up to pBdr element
+
+      pBdrFragment.up(); // Go back up from pBdr element
+
+      // Import the created border definition into the main paragraph properties fragment
+      paragraphPropertiesFragment.import(pBdrFragment);
+  }
+  // ***** END: CORRECTED CONDITIONAL BORDER CODE *****
   }
   paragraphPropertiesFragment.up();
 
