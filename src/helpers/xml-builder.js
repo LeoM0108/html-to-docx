@@ -3012,7 +3012,7 @@ const buildTableProperties = (attributes) => {
       }
     });
   }
-  const tableCellMarginFragment = buildTableCellMargins(160);
+  const tableCellMarginFragment = buildTableCellMargins(0);
   tablePropertiesFragment.import(tableCellMarginFragment);
 
   // by default, all tables are center aligned.
